@@ -18,4 +18,4 @@ CREATE TABLE products (
     quantity INT
 );
 
--- C:\xampp\mysql\bin\mysql.exe -u root -P 3307 -v < C:\xampp\htdocs\klasesdarbs\config\setup.sql
+-- C:\xampp\mysql\bin\mysql.exe -u root -P 3306 -v < C:\xampp\htdocs\klasesdarbs\config\setup.sql

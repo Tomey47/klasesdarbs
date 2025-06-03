@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['is_admin'] = $user['is_admin'];
 
         if ($user['is_admin'] == 1) {
-            header('Location: dashboard.php');
+            header('Location: ../views/dashboard.php');
             exit;
         } else {
             echo "Jums nav administratora tiesību.";

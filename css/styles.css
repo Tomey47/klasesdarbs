@@ -1,3 +1,102 @@
+body { font-family: Arial, sans-serif; background: #397180; }
+.container { margin: 40px auto; max-width: 1100px; background: #e6e6e6; padding: 30px; border-radius: 18px; box-shadow: 0 2px 8px #0001; flex: 1; margin-left: 250px; }
+h1 { text-align: center; color: #ff6d4d; font-weight: bold; }
+.admin-section { margin-top: 30px; }
+.not-admin { color: #b00; text-align: center; font-size: 1.2em; margin-top: 40px; }
+
+.main-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background: #2d3336;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 32px 0 32px 32px;
+    border-bottom: 1px solid #444a4d;
+    gap: 12px;
+    color: #ff6d4d;
+    letter-spacing: 2px;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav li {
+    display: flex;
+    align-items: center;
+    font-size: 1.1em;
+    padding: 18px 0 18px 32px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    gap: 16px;
+    color: #e6e6e6;
+}
+
+.sidebar-nav li:hover, .sidebar-nav li.active {
+    background: #23272a;
+    color: #ff6d4d;
+}
+
+.sidebar-nav li i {
+    min-width: 22px;
+    text-align: center;
+}
+
+/* Table styling for light card look */
+table {
+    background: #f5f5f5;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 18px;
+}
+th, td {
+    padding: 12px 10px;
+    text-align: left;
+}
+th {
+    background: #e6e6e6;
+    color: #23272a;
+    font-weight: bold;
+}
+td {
+    background: #fff;
+    color: #23272a;
+}
+tr:not(:last-child) td {
+    border-bottom: 1px solid #e0e0e0;
+}
+button {
+    background: #ff6d4d;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    margin-right: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+button:hover {
+    background: #e65c3a;
+}
 .login-card {
     background: #fff;
     max-width: 350px;
