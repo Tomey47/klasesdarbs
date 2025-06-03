@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: ../views/index.php');
         exit;
     } else {
-        echo "Reģistrācija neizdevās. Mēģiniet vēlreiz!";
+        echo "Reģistrācija neizdevās. Mēģiniet vēlreizZZZZZZZ!";
     }
 }
 ?>
