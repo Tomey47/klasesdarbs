@@ -1,6 +1,9 @@
 <?php
-// Simulate user role (replace with real logic later)
-$is_admin = true; // Change to false to simulate non-admin
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit;
+}
 
 require_once '../config/mysql.php';
 
@@ -27,11 +30,13 @@ if ($is_admin) {
         </div>
         <nav class="sidebar-nav">
             <ul>
-                <li><i class="fa-solid fa-home"></i> Sākums</li>
-                <li><i class="fa-solid fa-plus"></i> Pievienot produktu</li>
-                <li><i class="fa-solid fa-plus"></i> Pievienot lietotāju</li>
-                <li><i class="fa-solid fa-user"></i> Lietotāji</li>
-                <li><i class="fa-solid fa-right-from-bracket"></i> Iziet</li>
+                <li><a href="#"><i class="fa-solid fa-home"></i> Sākums</a></li>
+                <li><a href="#"><i class="fa-solid fa-plus"></i> Pievienot produktu</a></li>
+                <?php if ($is_admin): ?>
+                    <li><a href="registration.php"><i class="fa-solid fa-plus"></i> Pievienot lietotāju</a></li>
+                <?php endif; ?>
+                <li><a href="#"><i class="fa-solid fa-user"></i> Lietotāji</a></li>
+                <li><a href="../controllers/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Iziet</a></li>
             </ul>
         </nav>
     </aside>

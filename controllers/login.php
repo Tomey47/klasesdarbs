@@ -16,12 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['is_admin'] = $user['is_admin'];
 
-        if ($user['is_admin'] == 1) {
-            header('Location: ../views/dashboard.php');
-            exit;
-        } else {
-            echo "Jums nav administratora tiesību.";
-        }
+        
+        header('Location: ../views/dashboard.php');
+        exit;
     } else {
         echo "Nepareizs lietotājvārds vai parole.";
     }

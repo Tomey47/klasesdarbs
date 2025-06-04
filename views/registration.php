@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['is_admin'] != 1) {
+    header('Location: index.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +14,7 @@
 </head>
 <body>
     <div class="login-card">
-        <h2>Reģistrēties</h2>
+        <h2>Jauns Lietotājs</h2>
         <form action="../controllers/register.php" method="post">
             <label for="username">Lietotājvārds:</label>
             <input type="text" id="username" name="username" required>
