@@ -27,8 +27,8 @@ if ($is_admin) {
         </div>
         <nav class="sidebar-nav">
             <ul>
-                <li><i class="fa-solid fa-home"></i> Sākums</li>
-                <li><i class="fa-solid fa-plus"></i> Pievienot produktu</li>
+                <li class="active"><i class="fa-solid fa-home"></i> Sākums</li>
+                <li><a href="add_product.php"><i class="fa-solid fa-plus"></i> Pievienot produktu</a></li>
                 <li><i class="fa-solid fa-plus"></i> Pievienot lietotāju</li>
                 <li><i class="fa-solid fa-user"></i> Lietotāji</li>
                 <li><i class="fa-solid fa-right-from-bracket"></i> Iziet</li>

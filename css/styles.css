@@ -57,6 +57,21 @@ h1 { text-align: center; color: #ff6d4d; font-weight: bold; }
     text-align: center;
 }
 
+.sidebar-nav li a {
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    gap: 16px;
+}
+
+.sidebar-nav li.active a {
+    color: #800080;
+    text-decoration: underline;
+}
+
 /* Table styling for light card look */
 table {
     background: #f5f5f5;
