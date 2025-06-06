@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 require_once '../config/mysql.php';
 
 // Handle form submission
@@ -12,7 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['company_id'],
             $_POST['quantity']
         ]);
-        header('Location: dashboard.php');
+        
+        $_SESSION['success_message'] = 'Produkts veiksmīgi pievienots!';
+        header('Location: add_product.php');
         exit;
     } catch (PDOException $e) {
         $error = "Kļūda pievienojot produktu: " . $e->getMessage();
@@ -44,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </ul>
         </nav>
     </aside>
-    <div class="container">
+    <div class="add-product-card">
         <h1>Pievienot jaunu produktu</h1>
         
         <?php if (isset($error)): ?>
@@ -81,10 +85,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-actions">
                 <button type="submit" class="btn-primary">Pievienot produktu</button>
-                <a href="dashboard.php" class="btn-secondary">Atcelt</a>
             </div>
         </form>
     </div>
 </div>
+<script>
+    <?php
+    if (isset($_SESSION['success_message'])) {
+        echo 'alert('' . addslashes($_SESSION['success_message']) . '');';
+        unset($_SESSION['success_message']);
+    }
+    ?>
+</script>
 </body>
 </html> 
