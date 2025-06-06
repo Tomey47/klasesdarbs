@@ -154,3 +154,25 @@ button:hover {
     width: 14px;
     height: 14px;
 }
+/* Modal styles */
+.modal {
+    position: fixed;
+    z-index: 999;
+    left: 0; top: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.4);
+    display: none; align-items: center; justify-content: center;
+}
+.modal-content {
+    background: #fff;
+    padding: 24px 32px;
+    border-radius: 10px;
+    min-width: 320px;
+    position: relative;
+}
+.close {
+    position: absolute;
+    right: 16px;
+    top: 8px;
+    font-size: 28px;
+    cursor: pointer;
+}

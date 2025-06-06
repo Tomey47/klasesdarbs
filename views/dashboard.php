@@ -8,10 +8,8 @@ if (!isset($_SESSION['user_id'])) {
 require_once '../config/mysql.php';
 
 $products = [];
-if ($is_admin) {
-    $stmt = $dbh->query('SELECT * FROM products');
-    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+$stmt = $dbh->query('SELECT * FROM products');
+$products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +24,7 @@ if ($is_admin) {
 <div class="main-layout">
     <aside class="sidebar">
         <div class="sidebar-header">
-            <span>STASH</span>
+            <span>Noliktava</span>
         </div>
         <nav class="sidebar-nav">
             <ul>
@@ -35,41 +33,37 @@ if ($is_admin) {
                 <?php if ($is_admin): ?>
                     <li><a href="registration.php"><i class="fa-solid fa-plus"></i> Pievienot lietotāju</a></li>
                 <?php endif; ?>
-                <li><a href="#"><i class="fa-solid fa-user"></i> Lietotāji</a></li>
+                <?php if ($is_admin): ?>
+                    <li><a href="users.php"><i class="fa-solid fa-user"></i> Lietotāji</a></li>
+                <?php endif; ?>
                 <li><a href="../controllers/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Iziet</a></li>
             </ul>
         </nav>
     </aside>
     <div class="container">
         <h1>Produkti</h1>
-        <?php if ($is_admin): ?>
-            <div class="admin-section">
-                <table border="1" width="100%" cellpadding="8" cellspacing="0">
-                    <tr>
-                        <th>Produkts</th>
-                        <th>Kategorija</th>
-                        <th>Cena</th>
-                        <th>Firmas ID</th>
-                        <th>Daudzums</th>
-                        <th>Darbības</th>
-                    </tr>
-                    <?php foreach ($products as $product): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($product['title']) ?></td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td><?= htmlspecialchars($product['quantity']) ?></td>
-                        <td><button>Dzēst</button> <button>Rediģēt</button></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </table>
-            </div>
-        <?php else: ?>
-            <div class="not-admin">
-                Šī sadaļa ir pieejama tikai administratoriem.
-            </div>
-        <?php endif; ?>
+        <div class="admin-section">
+            <table border="1" width="100%" cellpadding="8" cellspacing="0">
+                <tr>
+                    <th>Produkts</th>
+                    <th>Kategorija</th>
+                    <th>Cena</th>
+                    <th>Firmas ID</th>
+                    <th>Daudzums</th>
+                    <th>Darbības</th>
+                </tr>
+                <?php foreach ($products as $product): ?>
+                <tr>
+                    <td><?= htmlspecialchars($product['title']) ?></td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td><?= htmlspecialchars($product['quantity']) ?></td>
+                    <td><button>Dzēst</button> <button>Rediģēt</button></td>
+                </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
     </div>
 </div>
 </body>
