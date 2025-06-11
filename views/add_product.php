@@ -53,7 +53,7 @@ require_once '../config/mysql.php';
         <form method="POST" class="product-form" action="../controllers/add_product.php" onsubmit="return validateForm()">
             <div class="form-group">
                 <label for="title">Produkta nosaukums:</label>
-                <input type="text" id="title" name="title" required
+                <input type="text" id="title" name="title"
                        minlength="3" maxlength="100"
                        pattern="[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+"
                        title="Produkta nosaukumam jābūt no 3 līdz 100 rakstzīmēm. Atļauti burti, cipari un simboli: -_.,">
@@ -62,7 +62,7 @@ require_once '../config/mysql.php';
 
             <div class="form-group">
                 <label for="category">Kategorija:</label>
-                <input type="text" id="category" name="category" required
+                <input type="text" id="category" name="category"
                        minlength="2" maxlength="50"
                        pattern="[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+"
                        title="Kategorijai jābūt no 2 līdz 50 rakstzīmēm. Atļauti burti, cipari un simboli: -_.,">
@@ -71,7 +71,7 @@ require_once '../config/mysql.php';
 
             <div class="form-group">
                 <label for="price">Cena (EUR):</label>
-                <input type="number" id="price" name="price" required
+                <input type="number" id="price" name="price"
                        min="0.01" max="999999.99" step="0.01"
                        title="Cenai jābūt no 0.01 līdz 999999.99 EUR">
                 <span class="error" id="priceError"></span>
@@ -79,14 +79,53 @@ require_once '../config/mysql.php';
 
             <div class="form-group">
                 <label for="quantity">Daudzums:</label>
-                <input type="number" id="quantity" name="quantity" required
+                <input type="number" id="quantity" name="quantity"
                        min="0" max="999999"
                        title="Daudzumam jābūt no 0 līdz 999999">
                 <span class="error" id="quantityError"></span>
             </div>
 
+            <div class="form-group">
+                <label for="shelf_id">Plaukts:</label>
+                <select id="shelf_id" name="shelf_id" required>
+                    <option value="">Izvēlieties plauktu</option>
+                    <?php
+                    // Fetch shelves and their stats from DB
+                    $shelves = $dbh->query("SELECT id, name, capacity FROM shelves")->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Get current usage for each shelf
+                    $shelfUsage = [];
+                    foreach ($shelves as $shelf) {
+                        $stmt = $dbh->prepare("SELECT SUM(quantity) as total FROM products WHERE shelf_id = ?");
+                        $stmt->execute([$shelf['id']]);
+                        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                        $shelfUsage[$shelf['id']] = (int)($row['total'] ?? 0);
+                    }
+
+                    foreach ($shelves as $shelf) {
+                        $free = $shelf['capacity'] - $shelfUsage[$shelf['id']];
+                        echo '<option value="' . htmlspecialchars($shelf['id']) . '" data-free="' . $free . '">' .
+                            htmlspecialchars($shelf['name']) . ' (' . $shelfUsage[$shelf['id']] . '/' . $shelf['capacity'] . ')' .
+                            '</option>';
+                    }
+                    ?>
+                </select>
+                <span class="error" id="shelfError"></span>
+            </div>
+
             <div class="form-actions">
                 <button type="submit" class="btn-primary">Pievienot produktu</button>
+            </div>
+            <div class="form-group">
+                <h3>Plauktu statistika</h3>
+                <ul id="shelf-stats">
+                    <?php foreach ($shelves as $shelf): ?>
+                        <li>
+                            <?= htmlspecialchars($shelf['name']) ?>: 
+                            <?= $shelfUsage[$shelf['id']] ?>/<?= $shelf['capacity'] ?> aizņemts
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
             </div>
         </form>
     </div>
@@ -143,6 +182,23 @@ document.querySelectorAll('input').forEach(input => {
         unset($_SESSION['success_message']);
     }
 ?>
+function updateShelfOptions() {
+    const quantity = parseInt(document.getElementById('quantity').value, 10) || 0;
+    document.querySelectorAll('#shelf_id option').forEach(option => {
+        if (!option.value) return; // Skip "Izvēlieties plauktu"
+        const free = parseInt(option.getAttribute('data-free'), 10);
+        option.style.display = (quantity > 0 && free >= quantity) ? '' : 'none';
+    });
+}
+
+// Initial run
+updateShelfOptions();
+
+// Update on quantity change
+document.getElementById('quantity').addEventListener('input', updateShelfOptions);
+
+// Also update on page load in case of autofill
+window.addEventListener('DOMContentLoaded', updateShelfOptions);
 </script>
 
 <style>

@@ -46,7 +46,10 @@ function validateProduct($data) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if user is authorized
-    if (!isset($_SESSION['is_admin']) || !$_SESSION['is_admin']) {
+    if (
+        (!isset($_SESSION['is_admin']) || !$_SESSION['is_admin']) &&
+        (!isset($_SESSION['is_shelf_manager']) || !$_SESSION['is_shelf_manager'])
+    ) {
         $_SESSION['error_message'] = "Jums nav atļauts pievienot produktus!";
         header('Location: ../views/add_product.php');
         exit;
@@ -83,8 +86,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Insert product with prepared statement
-        $stmt = $dbh->prepare('INSERT INTO products (title, category, price, quantity) VALUES (?, ?, ?, ?)');
-        $stmt->execute([$title, $category, $price, $quantity]);
+        $stmt = $dbh->prepare('INSERT INTO products (title, category, price, quantity, shelf_id) VALUES (?, ?, ?, ?, ?)');
+        $stmt->execute([
+            $title,
+            $category,
+            $price,
+            $quantity,
+            $_POST['shelf_id']
+        ]);
         
         $_SESSION['success_message'] = 'Produkts veiksmīgi pievienots!';
         header('Location: ../views/add_product.php');

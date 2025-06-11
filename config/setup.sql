@@ -32,11 +32,12 @@ CREATE TABLE orders (
 
 CREATE TABLE shelves (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL
+    name VARCHAR(50) NOT NULL,
+    capacity INT NOT NULL
 );
 
 ALTER TABLE products ADD COLUMN shelf_id INT DEFAULT NULL, ADD FOREIGN KEY (shelf_id) REFERENCES shelves(id) ON DELETE SET NULL;
-INSERT INTO shelves (name) VALUES ('Plaukts 1'), ('Plaukts 2'), ('Plaukts 3');
+INSERT INTO shelves (name, capacity) VALUES ('Plaukts 1', 10), ('Plaukts 2', 10), ('Plaukts 3', 8);
 
 INSERT INTO users (username, email, password, is_admin) VALUES
 ('admin', 'admin@example.com', '$2y$10$aJeqgJHwkiISRBIkrOFYd.iPFGGS2eNOUfVIKNyD.REFvNpFXiCvS', 1);

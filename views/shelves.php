@@ -65,8 +65,18 @@ $is_shelf_manager = $_SESSION['is_shelf_manager'] ?? 0;
     <div class="container">
         <h1>Plaukti un produkti</h1>
         <?php foreach ($shelves as $shelf): ?>
+            <?php
+                // Calculate total quantity on this shelf
+                $totalOnShelf = 0;
+                foreach ($productsByShelf[$shelf['id']] as $product) {
+                    $totalOnShelf += (int)$product['quantity'];
+                }
+            ?>
             <div class="admin-section" style="margin-bottom: 32px;">
-                <h2><?= htmlspecialchars($shelf['name']) ?></h2>
+                <h2>
+                    <?= htmlspecialchars($shelf['name']) ?>
+                    (<?= $totalOnShelf ?>/<?= htmlspecialchars($shelf['capacity']) ?>)
+                </h2>
                 <table border="1" width="100%" cellpadding="8" cellspacing="0">
                     <tr>
                         <th>Produkts</th>
@@ -86,12 +96,32 @@ $is_shelf_manager = $_SESSION['is_shelf_manager'] ?? 0;
                                 <input type="hidden" name="product_id" value="<?= $product['id'] ?>">
                                 <select name="target_shelf">
                                     <?php foreach ($shelves as $target): ?>
-                                        <?php if ($target['id'] != $shelf['id']): ?>
-                                            <option value="<?= $target['id'] ?>"><?= htmlspecialchars($target['name']) ?></option>
+                                        <?php
+                                            // Calculate total quantity on the target shelf
+                                            $targetTotal = 0;
+                                            foreach ($productsByShelf[$target['id']] as $p) {
+                                                $targetTotal += (int)$p['quantity'];
+                                            }
+                                            // Only show as option if moving would not exceed capacity
+                                            if (
+                                                $target['id'] != $shelf['id'] &&
+                                                ($targetTotal + (int)$product['quantity']) <= $target['capacity']
+                                            ):
+                                        ?>
+                                            <option value="<?= $target['id'] ?>">
+                                                <?= htmlspecialchars($target['name']) ?> (<?= $targetTotal ?>/<?= $target['capacity'] ?>)
+                                            </option>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
                                 </select>
-                                <button type="submit">Pārvietot</button>
+                                <button type="submit" <?= count(array_filter($shelves, function($target) use ($shelf, $productsByShelf, $product) {
+                                    if ($target['id'] == $shelf['id']) return false;
+                                    $targetTotal = 0;
+                                    foreach ($productsByShelf[$target['id']] as $p) {
+                                        $targetTotal += (int)$p['quantity'];
+                                    }
+                                    return ($targetTotal + (int)$product['quantity']) <= $target['capacity'];
+                                })) === 0 ? 'disabled' : '' ?>>Pārvietot</button>
                             </form>
                         </td>
                     </tr>
