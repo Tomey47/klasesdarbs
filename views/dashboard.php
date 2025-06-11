@@ -28,15 +28,24 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <nav class="sidebar-nav">
             <ul>
-                <li><a href="#"><i class="fa-solid fa-home"></i> Sākums</a></li>
-                <li><a href="#"><i class="fa-solid fa-plus"></i> Pievienot produktu</a></li>
                 <?php if ($is_admin): ?>
+                    <li><a href="dashboard.php"><i class="fa-solid fa-home"></i> Sākums</a></li>
+                    <li><a href="add_product.php"><i class="fa-solid fa-plus"></i> Pievienot produktu</a></li>
                     <li><a href="registration.php"><i class="fa-solid fa-plus"></i> Pievienot lietotāju</a></li>
-                <?php endif; ?>
-                <?php if ($is_admin): ?>
                     <li><a href="users.php"><i class="fa-solid fa-user"></i> Lietotāji</a></li>
+                    <li><a href="../controllers/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Iziet</a></li>
+                <?php elseif ($is_employee): ?>
+                    <li><a href="dashboard.php"><i class="fa-solid fa-home"></i> Sākums</a></li>
+                    <li><a href="#"><i class="fa-solid fa-car"></i> Veikt pasūtījumu</a></li>
+                    <li><a href="#"><i class="fa-solid fa-book"></i> Izveidot atskaiti</a></li>
+                    <li><a href="../controllers/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Iziet</a></li>
+                <?php elseif ($is_shelf_manager): ?>
+                    <li><a href="dashboard.php"><i class="fa-solid fa-home"></i> Sākums</a></li>
+                    <li><a href="#"><i class="fa-solid fa-box"></i> Izvietot preces</a></li>
+                    <li><a href="#"><i class="fa-solid fa-book"></i> Sagatavot atskaiti</a></li>
+                    <li><a href="#"><i class="fa-solid fa-user"></i> Datu ievade</a></li>
+                    <li><a href="../controllers/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Iziet</a></li>
                 <?php endif; ?>
-                <li><a href="../controllers/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Iziet</a></li>
             </ul>
         </nav>
     </aside>
@@ -48,16 +57,14 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <th>Produkts</th>
                     <th>Kategorija</th>
                     <th>Cena</th>
-                    <th>Firmas ID</th>
                     <th>Daudzums</th>
                     <th>Darbības</th>
                 </tr>
                 <?php foreach ($products as $product): ?>
                 <tr>
                     <td><?= htmlspecialchars($product['title']) ?></td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
+                    <td><?= htmlspecialchars($product['category']) ?></td>
+                    <td><?= htmlspecialchars($product['price']) ?></td>
                     <td><?= htmlspecialchars($product['quantity']) ?></td>
                     <td><button>Dzēst</button> <button>Rediģēt</button></td>
                 </tr>

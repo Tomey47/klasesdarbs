@@ -29,4 +29,14 @@ CREATE TABLE orders (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
+
+INSERT INTO users (username, email, password, is_admin) VALUES
+('admin', 'admin@example.com', SHA2('parole', 256), 1);
+
+INSERT INTO users (username, email, password, is_employee) VALUES
+('darbinieks', 'darbinieks@example.com', SHA2('parole', 256), 1);
+
+INSERT INTO users (username, email, password, is_shelf_manager) VALUES
+('krametajs', 'krametajs@example.com', SHA2('parole', 256), 1);
+
 -- C:\xampp\mysql\bin\mysql.exe -u root -P 3306 -v < C:\xampp\htdocs\klasesdarbs\config\setup.sql
