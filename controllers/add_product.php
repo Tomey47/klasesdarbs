@@ -2,7 +2,7 @@
 session_start();
 require_once '../config/mysql.php';
 
-function validateProduct($data) {
+function validateProduct($data, $shelfUsage = [], $shelves = []) {
     $errors = [];
     
     // Title validation
@@ -41,11 +41,23 @@ function validateProduct($data) {
         $errors[] = "Daudzums nevar būt lielāks par 999999!";
     }
 
+    // Shelf validation
+    if (empty($data['shelf_id'])) {
+        $errors[] = "Plaukts ir obligāts!";
+    } elseif (!isset($shelves[$data['shelf_id']])) {
+        $errors[] = "Izvēlētais plaukts neeksistē!";
+    } else {
+        $capacity = $shelves[$data['shelf_id']]['capacity'];
+        $used = $shelfUsage[$data['shelf_id']] ?? 0;
+        if (($used + (int)$data['quantity']) > $capacity) {
+            $errors[] = "Izvēlētajā plauktā nav pietiekami daudz vietas!";
+        }
+    }
+
     return $errors;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Check if user is authorized
     if (
         (!isset($_SESSION['is_admin']) || !$_SESSION['is_admin']) &&
         (!isset($_SESSION['is_shelf_manager']) || !$_SESSION['is_shelf_manager'])
@@ -55,19 +67,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Sanitize input
     $title = trim(htmlspecialchars($_POST['title'] ?? ''));
     $category = trim(htmlspecialchars($_POST['category'] ?? ''));
     $price = filter_var($_POST['price'] ?? 0, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
     $quantity = filter_var($_POST['quantity'] ?? 0, FILTER_SANITIZE_NUMBER_INT);
+    $shelf_id = $_POST['shelf_id'] ?? '';
 
-    // Validate input
+    $shelvesArr = [];
+    $shelfUsage = [];
+    $shelvesQuery = $dbh->query("SELECT id, capacity FROM shelves");
+    foreach ($shelvesQuery as $row) {
+        $shelvesArr[$row['id']] = ['capacity' => $row['capacity']];
+        $stmt = $dbh->prepare("SELECT SUM(quantity) as total FROM products WHERE shelf_id = ?");
+        $stmt->execute([$row['id']]);
+        $shelfUsage[$row['id']] = (int)($stmt->fetchColumn() ?? 0);
+    }
+
     $validationErrors = validateProduct([
         'title' => $title,
         'category' => $category,
         'price' => $price,
-        'quantity' => $quantity
-    ]);
+        'quantity' => $quantity,
+        'shelf_id' => $shelf_id
+    ], $shelfUsage, $shelvesArr);
 
     if (!empty($validationErrors)) {
         $_SESSION['error_message'] = implode("<br>", $validationErrors);

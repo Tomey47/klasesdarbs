@@ -87,7 +87,7 @@ require_once '../config/mysql.php';
 
             <div class="form-group">
                 <label for="shelf_id">Plaukts:</label>
-                <select id="shelf_id" name="shelf_id" required>
+                <select id="shelf_id" name="shelf_id">
                     <option value="">Izvēlieties plauktu</option>
                     <?php
                     // Fetch shelves and their stats from DB
