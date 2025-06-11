@@ -30,13 +30,21 @@ CREATE TABLE orders (
     FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
+CREATE TABLE shelves (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
+
+ALTER TABLE products ADD COLUMN shelf_id INT DEFAULT NULL, ADD FOREIGN KEY (shelf_id) REFERENCES shelves(id) ON DELETE SET NULL;
+INSERT INTO shelves (name) VALUES ('Plaukts 1'), ('Plaukts 2'), ('Plaukts 3');
+
 INSERT INTO users (username, email, password, is_admin) VALUES
-('admin', 'admin@example.com', SHA2('parole', 256), 1);
+('admin', 'admin@example.com', '$2y$10$aJeqgJHwkiISRBIkrOFYd.iPFGGS2eNOUfVIKNyD.REFvNpFXiCvS', 1);
 
 INSERT INTO users (username, email, password, is_employee) VALUES
-('darbinieks', 'darbinieks@example.com', SHA2('parole', 256), 1);
+('darbinieks', 'darbinieks@example.com', '$2y$10$aJeqgJHwkiISRBIkrOFYd.iPFGGS2eNOUfVIKNyD.REFvNpFXiCvS', 1);
 
 INSERT INTO users (username, email, password, is_shelf_manager) VALUES
-('krametajs', 'krametajs@example.com', SHA2('parole', 256), 1);
+('krametajs', 'krametajs@example.com', '$2y$10$aJeqgJHwkiISRBIkrOFYd.iPFGGS2eNOUfVIKNyD.REFvNpFXiCvS', 1);
 
 -- C:\xampp\mysql\bin\mysql.exe -u root -P 3306 -v < C:\xampp\htdocs\klasesdarbs\config\setup.sql
