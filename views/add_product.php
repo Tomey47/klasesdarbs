@@ -53,7 +53,7 @@ require_once '../config/mysql.php';
         <form method="POST" class="product-form" action="../controllers/add_product.php" onsubmit="return validateForm()">
             <div class="form-group">
                 <label for="title">Produkta nosaukums:</label>
-                <input type="text" id="title" name="title"
+                <input type="text" id="title" name="title" required
                        minlength="3" maxlength="100"
                        pattern="[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+"
                        title="Produkta nosaukumam jābūt no 3 līdz 100 rakstzīmēm. Atļauti burti, cipari un simboli: -_.,">
@@ -62,7 +62,7 @@ require_once '../config/mysql.php';
 
             <div class="form-group">
                 <label for="category">Kategorija:</label>
-                <input type="text" id="category" name="category"
+                <input type="text" id="category" name="category" required
                        minlength="2" maxlength="50"
                        pattern="[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+"
                        title="Kategorijai jābūt no 2 līdz 50 rakstzīmēm. Atļauti burti, cipari un simboli: -_.,">
@@ -71,17 +71,15 @@ require_once '../config/mysql.php';
 
             <div class="form-group">
                 <label for="price">Cena (EUR):</label>
-                <input type="number" id="price" name="price"
-                       min="0.01" max="999999.99" step="0.01"
-                       title="Cenai jābūt no 0.01 līdz 999999.99 EUR">
+                <input type="number" id="price" name="price" required
+                       min="0.01" max="999999.99" step="0.01">
                 <span class="error" id="priceError"></span>
             </div>
 
             <div class="form-group">
                 <label for="quantity">Daudzums:</label>
-                <input type="number" id="quantity" name="quantity"
-                       min="0" max="999999"
-                       title="Daudzumam jābūt no 0 līdz 999999">
+                <input type="number" id="quantity" name="quantity" required
+                       min="0" max="999999">
                 <span class="error" id="quantityError"></span>
             </div>
 
@@ -90,10 +88,8 @@ require_once '../config/mysql.php';
                 <select id="shelf_id" name="shelf_id">
                     <option value="">Izvēlieties plauktu</option>
                     <?php
-                    // Fetch shelves and their stats from DB
                     $shelves = $dbh->query("SELECT id, name, capacity FROM shelves")->fetchAll(PDO::FETCH_ASSOC);
 
-                    // Get current usage for each shelf
                     $shelfUsage = [];
                     foreach ($shelves as $shelf) {
                         $stmt = $dbh->prepare("SELECT SUM(quantity) as total FROM products WHERE shelf_id = ?");
@@ -140,17 +136,17 @@ function validateForm() {
     const quantity = document.getElementById('quantity');
 
     // Reset previous errors
-    document.querySelectorAll('.error').forEach(error => error.textContent = '');
+    document.querySelectorAll('.error').forEach(el => el.textContent = '');
 
     // Title validation
-    if (!title.value.match(/^[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+$/)) {
-        document.getElementById('titleError').textContent = 'Produkta nosaukums satur neatļautas rakstzīmes!';
+    if (title.value.length < 3 || title.value.length > 100) {
+        document.getElementById('titleError').textContent = 'Produkta nosaukumam jābūt no 3 līdz 100 rakstzīmēm!';
         isValid = false;
     }
 
     // Category validation
-    if (!category.value.match(/^[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+$/)) {
-        document.getElementById('categoryError').textContent = 'Kategorija satur neatļautas rakstzīmes!';
+    if (category.value.length < 2 || category.value.length > 50) {
+        document.getElementById('categoryError').textContent = 'Kategorijai jābūt no 2 līdz 50 rakstzīmēm!';
         isValid = false;
     }
 
@@ -169,7 +165,6 @@ function validateForm() {
     return isValid;
 }
 
-// Real-time validation
 document.querySelectorAll('input').forEach(input => {
     input.addEventListener('input', function() {
         validateForm();
@@ -191,35 +186,13 @@ function updateShelfOptions() {
     });
 }
 
-// Initial run
 updateShelfOptions();
 
-// Update on quantity change
 document.getElementById('quantity').addEventListener('input', updateShelfOptions);
 
-// Also update on page load in case of autofill
 window.addEventListener('DOMContentLoaded', updateShelfOptions);
 </script>
 
-<style>
-.error {
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-    display: block;
-}
 
-.form-group {
-    margin-bottom: 1rem;
-}
-
-input:invalid {
-    border-color: #dc3545;
-}
-
-input:valid {
-    border-color: #28a745;
-}
-</style>
 </body>
 </html>

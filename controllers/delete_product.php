@@ -3,14 +3,14 @@ session_start();
 require_once '../config/mysql.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Check if user is authorized
+   
     if (!isset($_SESSION['is_admin']) || !$_SESSION['is_admin']) {
         $_SESSION['error_message'] = "Jums nav atļauts dzēst produktus!";
         header('Location: ../views/dashboard.php');
         exit;
     }
 
-    // Sanitize input
+   
     $id = filter_var($_POST['id'] ?? 0, FILTER_SANITIZE_NUMBER_INT);
 
     if (!$id) {
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Check if product exists
+        
         $stmt = $dbh->prepare('SELECT id FROM products WHERE id = ?');
         $stmt->execute([$id]);
         if (!$stmt->fetch()) {
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Delete product
+        
         $stmt = $dbh->prepare('DELETE FROM products WHERE id = ?');
         $stmt->execute([$id]);
         

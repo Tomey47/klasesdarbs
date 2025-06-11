@@ -5,7 +5,7 @@ require_once '../config/mysql.php';
 function validateProduct($data, $shelfUsage = [], $shelves = []) {
     $errors = [];
     
-    // Title validation
+    
     if (empty($data['title'])) {
         $errors[] = "Produkta nosaukums ir obligāts!";
     } elseif (strlen($data['title']) < 3 || strlen($data['title']) > 100) {
@@ -14,7 +14,7 @@ function validateProduct($data, $shelfUsage = [], $shelves = []) {
         $errors[] = "Produkta nosaukums satur neatļautas rakstzīmes!";
     }
 
-    // Category validation
+    
     if (empty($data['category'])) {
         $errors[] = "Kategorija ir obligāta!";
     } elseif (strlen($data['category']) < 2 || strlen($data['category']) > 50) {
@@ -23,7 +23,7 @@ function validateProduct($data, $shelfUsage = [], $shelves = []) {
         $errors[] = "Kategorija satur neatļautas rakstzīmes!";
     }
 
-    // Price validation
+    
     if (!isset($data['price']) || $data['price'] === '') {
         $errors[] = "Cena ir obligāta!";
     } elseif (!is_numeric($data['price']) || $data['price'] <= 0) {
@@ -32,7 +32,7 @@ function validateProduct($data, $shelfUsage = [], $shelves = []) {
         $errors[] = "Cena nevar būt lielāka par 999999.99 EUR!";
     }
 
-    // Quantity validation
+    
     if (!isset($data['quantity']) || $data['quantity'] === '') {
         $errors[] = "Daudzums ir obligāts!";
     } elseif (!is_numeric($data['quantity']) || $data['quantity'] < 0) {
@@ -41,7 +41,7 @@ function validateProduct($data, $shelfUsage = [], $shelves = []) {
         $errors[] = "Daudzums nevar būt lielāks par 999999!";
     }
 
-    // Shelf validation
+    
     if (empty($data['shelf_id'])) {
         $errors[] = "Plaukts ir obligāts!";
     } elseif (!isset($shelves[$data['shelf_id']])) {
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Check for duplicate product
+        
         $stmt = $dbh->prepare('SELECT id FROM products WHERE title = ? AND category = ?');
         $stmt->execute([$title, $category]);
         if ($stmt->fetch()) {
@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Insert product with prepared statement
+       
         $stmt = $dbh->prepare('INSERT INTO products (title, category, price, quantity, shelf_id) VALUES (?, ?, ?, ?, ?)');
         $stmt->execute([
             $title,

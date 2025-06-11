@@ -1,5 +1,5 @@
 <?php
-// filepath: c:\xampp\htdocs\klasesdarbs\controllers\edit_user.php
+
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['is_admin'] != 1) {
     header('Location: ../views/index.php');
@@ -29,7 +29,7 @@ function validateEmail($email) {
         return "Nederīgs e-pasta formāts!";
     }
     
-    // Check if email domain is valid
+    
     $domain = substr(strrchr($email, "@"), 1);
     if (!checkdnsrr($domain, 'MX') && !checkdnsrr($domain, 'A')) {
         return "E-pasta domēns neeksistē!";
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $is_shelf_manager = isset($_POST['is_shelf_manager']) ? 1 : 0;
     $is_admin = isset($_POST['is_admin']) ? 1 : 0;
 
-    // Validate input
+    
     $usernameError = validateUsername($username);
     $emailError = validateEmail($email);
 
@@ -55,14 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Prevent admin from removing their own admin rights
+    
     if ($id == $_SESSION['user_id'] && $is_admin != 1) {
         $_SESSION['error_message'] = "Nevar noņemt sev administratora tiesības!";
         header('Location: ../views/users.php');
         exit;
     }
 
-    // Check for unique username/email (excluding current user)
+    
     $stmt = $dbh->prepare("SELECT id FROM users WHERE (username = ? OR email = ?) AND id != ?");
     $stmt->execute([$username, $email, $id]);
     if ($stmt->fetch()) {
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Update user
+        
         $stmt = $dbh->prepare("UPDATE users SET username = ?, email = ?, is_employee = ?, is_shelf_manager = ?, is_admin = ? WHERE id = ?");
         $stmt->execute([$username, $email, $is_employee, $is_shelf_manager, $is_admin, $id]);
         $_SESSION['success_message'] = "Lietotājs veiksmīgi atjaunināts!";
