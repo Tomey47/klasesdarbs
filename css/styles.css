@@ -253,3 +253,90 @@ button:hover {
 .add-product-card button:hover {
     background: #1565c0;
 }
+
+/* Employee Orders Styles */
+.status-pending { 
+    color: #f39c12; 
+}
+
+.status-processing { 
+    color: #3498db; 
+}
+
+.status-completed { 
+    color: #2ecc71; 
+}
+
+.status-cancelled { 
+    color: #e74c3c; 
+}
+
+.order-form {
+    display: inline-block;
+    margin: 0;
+}
+
+.status-select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.update-btn {
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.update-btn:hover {
+    background-color: #2980b9;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.success-message {
+    color: green;
+    margin-top: 10px;
+}
+
+.new-order-form {
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.new-order-form .form-group {
+    margin-bottom: 15px;
+}
+
+.new-order-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.new-order-form select,
+.new-order-form input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+.new-order-form button[type="submit"] {
+    width: auto;
+    padding: 10px 20px;
+    font-size: 1em;
+    margin-top: 15px;
+}

@@ -98,12 +98,23 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="modal-content login-card" style="max-width: 400px;">
         <span class="close" onclick="closeEditModal()">&times;</span>
         <h2 style="text-align:center; color:#333;">Rediģēt lietotāju</h2>
-        <form id="editUserForm" method="post" action="../controllers/edit_user.php">
+        <form id="editUserForm" method="post" action="../controllers/edit_user.php" onsubmit="return validateEditForm()">
             <input type="hidden" name="id" id="editUserId">
-            <label for="editUsername">Lietotājvārds:</label>
-            <input type="text" name="username" id="editUsername" required>
-            <label for="editEmail">E-pasts:</label>
-            <input type="email" name="email" id="editEmail" required>
+            <div class="form-group">
+                <label for="editUsername">Lietotājvārds:</label>
+                <input type="text" name="username" id="editUsername" required
+                       minlength="5" maxlength="30"
+                       pattern="[a-zA-Z0-9._]+"
+                       title="Lietotājvārdam jābūt 5-30 rakstzīmēm garam un var saturēt tikai burtus, ciparus, punktus un pasvītrojuma zīmes">
+                <span class="error" id="editUsernameError"></span>
+            </div>
+            <div class="form-group">
+                <label for="editEmail">E-pasts:</label>
+                <input type="email" name="email" id="editEmail" required
+                       pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                       title="Lūdzu ievadiet derīgu e-pasta adresi">
+                <span class="error" id="editEmailError"></span>
+            </div>
             <div class="role-checkbox-group">
                 <label class="role-checkbox-row">
                     Administrators
@@ -123,6 +134,36 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 <script>
+function validateEditForm() {
+    let isValid = true;
+    const username = document.getElementById('editUsername');
+    const email = document.getElementById('editEmail');
+
+    // Reset previous errors
+    document.querySelectorAll('.error').forEach(error => error.textContent = '');
+
+    // Username validation
+    if (!username.value.match(/^[a-zA-Z0-9._]{5,30}$/)) {
+        document.getElementById('editUsernameError').textContent = 'Lietotājvārdam jābūt 5-30 rakstzīmēm garam un var saturēt tikai burtus, ciparus, punktus un pasvītrojuma zīmes!';
+        isValid = false;
+    }
+
+    // Email validation
+    if (!email.value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+        document.getElementById('editEmailError').textContent = 'Lūdzu ievadiet derīgu e-pasta adresi!';
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+// Real-time validation
+document.querySelectorAll('#editUserForm input').forEach(input => {
+    input.addEventListener('input', function() {
+        validateEditForm();
+    });
+});
+
 function openEditModal(id, username, email, is_employee, is_shelf_manager, is_admin) {
     document.getElementById('editUserId').value = id;
     document.getElementById('editUsername').value = username;
@@ -132,9 +173,11 @@ function openEditModal(id, username, email, is_employee, is_shelf_manager, is_ad
     document.getElementById('editIsAdmin').checked = (is_admin == 1 || is_admin == '1');
     document.getElementById('editUserModal').style.display = 'flex';
 }
+
 function closeEditModal() {
     document.getElementById('editUserModal').style.display = 'none';
 }
+
 window.onclick = function(event) {
     var modal = document.getElementById('editUserModal');
     if (event.target == modal) {

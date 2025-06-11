@@ -8,17 +8,56 @@ if (!isset($_SESSION['user_id']) || $_SESSION['is_admin'] != 1) {
 
 require_once '../config/mysql.php';
 
+function validateUsername($username) {
+    if (empty($username)) {
+        return "Lietotājvārds ir obligāts!";
+    }
+    if (strlen($username) < 5 || strlen($username) > 30) {
+        return "Lietotājvārdam jābūt no 5 līdz 30 rakstzīmēm!";
+    }
+    if (!preg_match('/^[a-zA-Z0-9._]+$/', $username)) {
+        return "Lietotājvārdam var saturēt tikai burtus, ciparus, punktus un pasvītrojuma zīmes!";
+    }
+    return null;
+}
+
+function validateEmail($email) {
+    if (empty($email)) {
+        return "E-pasts ir obligāts!";
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return "Nederīgs e-pasta formāts!";
+    }
+    
+    // Check if email domain is valid
+    $domain = substr(strrchr($email, "@"), 1);
+    if (!checkdnsrr($domain, 'MX') && !checkdnsrr($domain, 'A')) {
+        return "E-pasta domēns neeksistē!";
+    }
+    return null;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = intval($_POST['id']);
-    $username = trim($_POST['username'] ?? '');
-    $email = trim($_POST['email'] ?? '');
+    $username = trim(htmlspecialchars($_POST['username'] ?? ''));
+    $email = trim(htmlspecialchars($_POST['email'] ?? ''));
     $is_employee = isset($_POST['is_employee']) ? 1 : 0;
     $is_shelf_manager = isset($_POST['is_shelf_manager']) ? 1 : 0;
     $is_admin = isset($_POST['is_admin']) ? 1 : 0;
 
+    // Validate input
+    $usernameError = validateUsername($username);
+    $emailError = validateEmail($email);
+
+    if ($usernameError || $emailError) {
+        $_SESSION['error_message'] = implode("<br>", array_filter([$usernameError, $emailError]));
+        header('Location: ../views/users.php');
+        exit;
+    }
+
     // Prevent admin from removing their own admin rights
     if ($id == $_SESSION['user_id'] && $is_admin != 1) {
-        $_SESSION['delete_message'] = "Nevar noņemt sev administratora tiesības!";
+        $_SESSION['error_message'] = "Nevar noņemt sev administratora tiesības!";
         header('Location: ../views/users.php');
         exit;
     }
@@ -27,18 +66,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $dbh->prepare("SELECT id FROM users WHERE (username = ? OR email = ?) AND id != ?");
     $stmt->execute([$username, $email, $id]);
     if ($stmt->fetch()) {
-        $_SESSION['delete_message'] = "Lietotājvārds vai e-pasts jau eksistē!";
+        $_SESSION['error_message'] = "Lietotājvārds vai e-pasts jau eksistē!";
         header('Location: ../views/users.php');
         exit;
     }
 
-    // Update user
-    $stmt = $dbh->prepare("UPDATE users SET username = ?, email = ?, is_employee = ?, is_shelf_manager = ?, is_admin = ? WHERE id = ?");
-    $stmt->execute([$username, $email, $is_employee, $is_shelf_manager, $is_admin, $id]);
-
-    $_SESSION['delete_message'] = "Lietotājs veiksmīgi atjaunināts!";
+    try {
+        // Update user
+        $stmt = $dbh->prepare("UPDATE users SET username = ?, email = ?, is_employee = ?, is_shelf_manager = ?, is_admin = ? WHERE id = ?");
+        $stmt->execute([$username, $email, $is_employee, $is_shelf_manager, $is_admin, $id]);
+        $_SESSION['success_message'] = "Lietotājs veiksmīgi atjaunināts!";
+    } catch (PDOException $e) {
+        $_SESSION['error_message'] = "Kļūda atjauninot lietotāju: " . $e->getMessage();
+    }
+    
     header('Location: ../views/users.php');
     exit;
 }
+
 header('Location: ../views/users.php');
 exit;
