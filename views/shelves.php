@@ -2,10 +2,8 @@
 session_start();
 require_once '../config/mysql.php';
 
-// Get all shelves
 $shelves = $dbh->query("SELECT * FROM shelves")->fetchAll(PDO::FETCH_ASSOC);
 
-// Get products grouped by shelf
 $productsByShelf = [];
 foreach ($shelves as $shelf) {
     $stmt = $dbh->prepare("SELECT * FROM products WHERE shelf_id = ?");
@@ -13,7 +11,6 @@ foreach ($shelves as $shelf) {
     $productsByShelf[$shelf['id']] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Handle move (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST['target_shelf'])) {
     $stmt = $dbh->prepare("UPDATE products SET shelf_id = ? WHERE id = ?");
     $stmt->execute([$_POST['target_shelf'], $_POST['product_id']]);
@@ -21,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST[
     exit;
 }
 
-// Role variables for sidebar
 $is_admin = $_SESSION['is_admin'] ?? 0;
 $is_employee = $_SESSION['is_employee'] ?? 0;
 $is_shelf_manager = $_SESSION['is_shelf_manager'] ?? 0;
@@ -66,7 +62,6 @@ $is_shelf_manager = $_SESSION['is_shelf_manager'] ?? 0;
         <h1>Plaukti un produkti</h1>
         <?php foreach ($shelves as $shelf): ?>
             <?php
-                // Calculate total quantity on this shelf
                 $totalOnShelf = 0;
                 foreach ($productsByShelf[$shelf['id']] as $product) {
                     $totalOnShelf += (int)$product['quantity'];
@@ -97,12 +92,10 @@ $is_shelf_manager = $_SESSION['is_shelf_manager'] ?? 0;
                                 <select name="target_shelf">
                                     <?php foreach ($shelves as $target): ?>
                                         <?php
-                                            // Calculate total quantity on the target shelf
                                             $targetTotal = 0;
                                             foreach ($productsByShelf[$target['id']] as $p) {
                                                 $targetTotal += (int)$p['quantity'];
                                             }
-                                            // Only show as option if moving would not exceed capacity
                                             if (
                                                 $target['id'] != $shelf['id'] &&
                                                 ($targetTotal + (int)$product['quantity']) <= $target['capacity']

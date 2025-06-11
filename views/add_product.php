@@ -90,10 +90,8 @@ require_once '../config/mysql.php';
                 <select id="shelf_id" name="shelf_id">
                     <option value="">Izvēlieties plauktu</option>
                     <?php
-                    // Fetch shelves and their stats from DB
                     $shelves = $dbh->query("SELECT id, name, capacity FROM shelves")->fetchAll(PDO::FETCH_ASSOC);
 
-                    // Get current usage for each shelf
                     $shelfUsage = [];
                     foreach ($shelves as $shelf) {
                         $stmt = $dbh->prepare("SELECT SUM(quantity) as total FROM products WHERE shelf_id = ?");
@@ -132,94 +130,20 @@ require_once '../config/mysql.php';
 </div>
 
 <script>
-function validateForm() {
-    let isValid = true;
-    const title = document.getElementById('title');
-    const category = document.getElementById('category');
-    const price = document.getElementById('price');
-    const quantity = document.getElementById('quantity');
-
-    // Reset previous errors
-    document.querySelectorAll('.error').forEach(error => error.textContent = '');
-
-    // Title validation
-    if (!title.value.match(/^[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+$/)) {
-        document.getElementById('titleError').textContent = 'Produkta nosaukums satur neatļautas rakstzīmes!';
-        isValid = false;
+    function updateShelfOptions() {
+        const quantity = parseInt(document.getElementById('quantity').value, 10) || 0;
+        document.querySelectorAll('#shelf_id option').forEach(option => {
+            if (!option.value) return;
+            const free = parseInt(option.getAttribute('data-free'), 10);
+            option.style.display = (quantity > 0 && free >= quantity) ? '' : 'none';
+        });
     }
 
-    // Category validation
-    if (!category.value.match(/^[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+$/)) {
-        document.getElementById('categoryError').textContent = 'Kategorija satur neatļautas rakstzīmes!';
-        isValid = false;
-    }
+    updateShelfOptions();
 
-    // Price validation
-    if (price.value <= 0 || price.value > 999999.99) {
-        document.getElementById('priceError').textContent = 'Cenai jābūt no 0.01 līdz 999999.99 EUR!';
-        isValid = false;
-    }
+    document.getElementById('quantity').addEventListener('input', updateShelfOptions);
 
-    // Quantity validation
-    if (quantity.value < 0 || quantity.value > 999999) {
-        document.getElementById('quantityError').textContent = 'Daudzumam jābūt no 0 līdz 999999!';
-        isValid = false;
-    }
-
-    return isValid;
-}
-
-// Real-time validation
-document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', function() {
-        validateForm();
-    });
-});
-
-<?php
-    if (isset($_SESSION['success_message'])) {
-        echo 'alert("' . addslashes($_SESSION['success_message']) . '");';
-        unset($_SESSION['success_message']);
-    }
-?>
-function updateShelfOptions() {
-    const quantity = parseInt(document.getElementById('quantity').value, 10) || 0;
-    document.querySelectorAll('#shelf_id option').forEach(option => {
-        if (!option.value) return; // Skip "Izvēlieties plauktu"
-        const free = parseInt(option.getAttribute('data-free'), 10);
-        option.style.display = (quantity > 0 && free >= quantity) ? '' : 'none';
-    });
-}
-
-// Initial run
-updateShelfOptions();
-
-// Update on quantity change
-document.getElementById('quantity').addEventListener('input', updateShelfOptions);
-
-// Also update on page load in case of autofill
-window.addEventListener('DOMContentLoaded', updateShelfOptions);
+    window.addEventListener('DOMContentLoaded', updateShelfOptions);
 </script>
-
-<style>
-.error {
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-    display: block;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-input:invalid {
-    border-color: #dc3545;
-}
-
-input:valid {
-    border-color: #28a745;
-}
-</style>
 </body>
 </html>

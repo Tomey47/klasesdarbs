@@ -2,13 +2,11 @@
 session_start();
 require_once '../config/mysql.php';
 
-// Check if user is authorized
 if (!isset($_SESSION['is_admin']) || !$_SESSION['is_admin']) {
     header('Location: dashboard.php');
     exit;
 }
 
-// Get product ID from URL
 $id = filter_var($_GET['id'] ?? 0, FILTER_SANITIZE_NUMBER_INT);
 
 if (!$id) {
@@ -17,7 +15,6 @@ if (!$id) {
     exit;
 }
 
-// Get product data
 try {
     $stmt = $dbh->prepare('SELECT * FROM products WHERE id = ?');
     $stmt->execute([$id]);
@@ -34,7 +31,6 @@ try {
     exit;
 }
 
-// Role variables for sidebar
 $is_admin = $_SESSION['is_admin'] ?? 0;
 $is_employee = $_SESSION['is_employee'] ?? 0;
 $is_shelf_manager = $_SESSION['is_shelf_manager'] ?? 0;
@@ -131,44 +127,5 @@ $is_shelf_manager = $_SESSION['is_shelf_manager'] ?? 0;
         </form>
     </div>
 </div>
-
-<script>
-function validateForm() {
-    let isValid = true;
-    const title = document.getElementById('title');
-    const category = document.getElementById('category');
-    const price = document.getElementById('price');
-    const quantity = document.getElementById('quantity');
-
-    // Reset previous errors
-    document.querySelectorAll('.error').forEach(el => el.textContent = '');
-
-    // Title validation
-    if (title.value.length < 3 || title.value.length > 100) {
-        document.getElementById('titleError').textContent = 'Produkta nosaukumam jābūt no 3 līdz 100 rakstzīmēm!';
-        isValid = false;
-    }
-
-    // Category validation
-    if (category.value.length < 2 || category.value.length > 50) {
-        document.getElementById('categoryError').textContent = 'Kategorijai jābūt no 2 līdz 50 rakstzīmēm!';
-        isValid = false;
-    }
-
-    // Price validation
-    if (price.value <= 0 || price.value > 999999.99) {
-        document.getElementById('priceError').textContent = 'Cenai jābūt no 0.01 līdz 999999.99 EUR!';
-        isValid = false;
-    }
-
-    // Quantity validation
-    if (quantity.value < 0 || quantity.value > 999999) {
-        document.getElementById('quantityError').textContent = 'Daudzumam jābūt no 0 līdz 999999!';
-        isValid = false;
-    }
-
-    return isValid;
-}
-</script>
 </body>
 </html> 

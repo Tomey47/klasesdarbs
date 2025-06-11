@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ], $shelfUsage, $shelvesArr);
 
     if (!empty($validationErrors)) {
-        $_SESSION['error_message'] = implode("<br>", $validationErrors);
+        $_SESSION['error_message'] = implode("  " ,$validationErrors);
         header('Location: ../views/add_product.php');
         exit;
     }
