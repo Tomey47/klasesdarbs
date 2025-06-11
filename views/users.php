@@ -7,8 +7,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['is_admin'] != 1 ) {
 
 require_once '../config/mysql.php';
 
-// Only admins can see all users
-
 $stmt = $dbh->query("SELECT id, username, email, is_employee, is_shelf_manager, is_admin FROM users");
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -102,7 +100,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <input type="hidden" name="id" id="editUserId">
             <div class="form-group">
                 <label for="editUsername">Lietotājvārds:</label>
-                <input type="text" name="username" id="editUsername" required
+                <input type="text" name="username" id="editUsername"
                        minlength="5" maxlength="30"
                        pattern="[a-zA-Z0-9._]+"
                        title="Lietotājvārdam jābūt 5-30 rakstzīmēm garam un var saturēt tikai burtus, ciparus, punktus un pasvītrojuma zīmes">
@@ -110,7 +108,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <div class="form-group">
                 <label for="editEmail">E-pasts:</label>
-                <input type="email" name="email" id="editEmail" required
+                <input type="email" name="email" id="editEmail"
                        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
                        title="Lūdzu ievadiet derīgu e-pasta adresi">
                 <span class="error" id="editEmailError"></span>
@@ -134,56 +132,52 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 <script>
-function validateEditForm() {
-    let isValid = true;
-    const username = document.getElementById('editUsername');
-    const email = document.getElementById('editEmail');
+    function validateEditForm() {
+        let isValid = true;
+        const username = document.getElementById('editUsername');
+        const email = document.getElementById('editEmail');
 
-    // Reset previous errors
-    document.querySelectorAll('.error').forEach(error => error.textContent = '');
+        document.querySelectorAll('.error').forEach(error => error.textContent = '');
 
-    // Username validation
-    if (!username.value.match(/^[a-zA-Z0-9._]{5,30}$/)) {
-        document.getElementById('editUsernameError').textContent = 'Lietotājvārdam jābūt 5-30 rakstzīmēm garam un var saturēt tikai burtus, ciparus, punktus un pasvītrojuma zīmes!';
-        isValid = false;
+        if (!username.value.match(/^[a-zA-Z0-9._]{5,30}$/)) {
+            document.getElementById('editUsernameError').textContent = 'Lietotājvārdam jābūt 5-30 rakstzīmēm garam un var saturēt tikai burtus, ciparus, punktus un pasvītrojuma zīmes!';
+            isValid = false;
+        }
+
+        if (!email.value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+            document.getElementById('editEmailError').textContent = 'Lūdzu ievadiet derīgu e-pasta adresi!';
+            isValid = false;
+        }
+
+        return isValid;
     }
 
-    // Email validation
-    if (!email.value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
-        document.getElementById('editEmailError').textContent = 'Lūdzu ievadiet derīgu e-pasta adresi!';
-        isValid = false;
-    }
-
-    return isValid;
-}
-
-// Real-time validation
-document.querySelectorAll('#editUserForm input').forEach(input => {
-    input.addEventListener('input', function() {
-        validateEditForm();
+    document.querySelectorAll('#editUserForm input').forEach(input => {
+        input.addEventListener('input', function() {
+            validateEditForm();
+        });
     });
-});
 
-function openEditModal(id, username, email, is_employee, is_shelf_manager, is_admin) {
-    document.getElementById('editUserId').value = id;
-    document.getElementById('editUsername').value = username;
-    document.getElementById('editEmail').value = email;
-    document.getElementById('editIsEmployee').checked = (is_employee == 1 || is_employee == '1');
-    document.getElementById('editIsShelfManager').checked = (is_shelf_manager == 1 || is_shelf_manager == '1');
-    document.getElementById('editIsAdmin').checked = (is_admin == 1 || is_admin == '1');
-    document.getElementById('editUserModal').style.display = 'flex';
-}
-
-function closeEditModal() {
-    document.getElementById('editUserModal').style.display = 'none';
-}
-
-window.onclick = function(event) {
-    var modal = document.getElementById('editUserModal');
-    if (event.target == modal) {
-        closeEditModal();
+    function openEditModal(id, username, email, is_employee, is_shelf_manager, is_admin) {
+        document.getElementById('editUserId').value = id;
+        document.getElementById('editUsername').value = username;
+        document.getElementById('editEmail').value = email;
+        document.getElementById('editIsEmployee').checked = (is_employee == 1 || is_employee == '1');
+        document.getElementById('editIsShelfManager').checked = (is_shelf_manager == 1 || is_shelf_manager == '1');
+        document.getElementById('editIsAdmin').checked = (is_admin == 1 || is_admin == '1');
+        document.getElementById('editUserModal').style.display = 'flex';
     }
-}
+
+    function closeEditModal() {
+        document.getElementById('editUserModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        var modal = document.getElementById('editUserModal');
+        if (event.target == modal) {
+            closeEditModal();
+        }
+    }
 </script>
 </body>
 </html>

@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_employee']) || $_SESSIO
 
 require_once '../config/mysql.php';
 
-// Get logged-in user info
 $logged_in_user_id = $_SESSION['user_id'];
 $logged_in_username = '';
 $stmt_user = $dbh->prepare("SELECT username FROM users WHERE id = ?");
@@ -17,11 +16,9 @@ if ($user_info) {
     $logged_in_username = $user_info['username'];
 }
 
-// Fetch products for the new order form
 $products_stmt = $dbh->query("SELECT id, title, quantity FROM products WHERE quantity > 0 ORDER BY title ASC");
 $products = $products_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Handle status update if form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id']) && isset($_POST['status'])) {
     $stmt = $dbh->prepare("UPDATE orders SET status = ? WHERE id = ?");
     $stmt->execute([$_POST['status'], $_POST['order_id']]);
@@ -29,15 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order_id']) && isset(
     exit;
 }
 
-// Handle new order creation if form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_order_submit'])) {
-    $user_id = $logged_in_user_id; // Use logged-in user's ID
+    $user_id = $logged_in_user_id;
     $product_id = $_POST['product_id'];
     $quantity = $_POST['quantity'];
 
-    // Basic validation
     if ($user_id && $product_id && $quantity > 0) {
-        // Check product availability
         $product_check_stmt = $dbh->prepare("SELECT quantity FROM products WHERE id = ?");
         $product_check_stmt->execute([$product_id]);
         $available_quantity = $product_check_stmt->fetchColumn();
@@ -45,11 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_order_submit'])) 
         if ($available_quantity >= $quantity) {
             $dbh->beginTransaction();
             try {
-                // Insert new order
                 $insert_order_stmt = $dbh->prepare("INSERT INTO orders (user_id, product_id, quantity, status) VALUES (?, ?, ?, 'Pending')");
                 $insert_order_stmt->execute([$user_id, $product_id, $quantity]);
 
-                // Update product quantity
                 $update_product_stmt = $dbh->prepare("UPDATE products SET quantity = quantity - ? WHERE id = ?");
                 $update_product_stmt->execute([$quantity, $product_id]);
 
@@ -69,7 +61,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new_order_submit'])) 
     exit;
 }
 
-// Get all orders
 $stmt = $dbh->query("SELECT o.id, u.username, p.title, o.quantity, o.status 
                      FROM orders o
                      JOIN users u ON o.user_id = u.id
@@ -189,22 +180,11 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
     function validateNewOrderForm() {
         let isValid = true;
 
-        // Clear previous errors
         document.getElementById('productError').textContent = '';
         document.getElementById('quantityError').textContent = '';
 
-        // user_id is now hidden and always the logged-in user
-        // const userId = document.getElementById('user_id').value;
         const productId = document.getElementById('product_id').value;
         const quantity = document.getElementById('quantity').value;
-
-        // Removed user_id validation as it's handled by session
-        /*
-        if (userId === '') {
-            document.getElementById('userError').textContent = 'Lūdzu, izvēlieties lietotāju.';
-            isValid = false;
-        }
-        */
 
         if (productId === '') {
             document.getElementById('productError').textContent = 'Lūdzu, izvēlieties produktu.';

@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_shelf_manager']) || $_S
 
 require_once '../config/mysql.php';
 
-// Get all products
 $stmt = $dbh->query("SELECT id, title, category, price, quantity FROM products ORDER BY title ASC");
 $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

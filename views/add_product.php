@@ -128,71 +128,20 @@ require_once '../config/mysql.php';
 </div>
 
 <script>
-function validateForm() {
-    let isValid = true;
-    const title = document.getElementById('title');
-    const category = document.getElementById('category');
-    const price = document.getElementById('price');
-    const quantity = document.getElementById('quantity');
-
-    // Reset previous errors
-    document.querySelectorAll('.error').forEach(el => el.textContent = '');
-
-    // Title validation
-    if (title.value.length < 3 || title.value.length > 100) {
-        document.getElementById('titleError').textContent = 'Produkta nosaukumam jābūt no 3 līdz 100 rakstzīmēm!';
-        isValid = false;
+    function updateShelfOptions() {
+        const quantity = parseInt(document.getElementById('quantity').value, 10) || 0;
+        document.querySelectorAll('#shelf_id option').forEach(option => {
+            if (!option.value) return;
+            const free = parseInt(option.getAttribute('data-free'), 10);
+            option.style.display = (quantity > 0 && free >= quantity) ? '' : 'none';
+        });
     }
 
-    // Category validation
-    if (category.value.length < 2 || category.value.length > 50) {
-        document.getElementById('categoryError').textContent = 'Kategorijai jābūt no 2 līdz 50 rakstzīmēm!';
-        isValid = false;
-    }
+    updateShelfOptions();
 
-    // Price validation
-    if (price.value <= 0 || price.value > 999999.99) {
-        document.getElementById('priceError').textContent = 'Cenai jābūt no 0.01 līdz 999999.99 EUR!';
-        isValid = false;
-    }
+    document.getElementById('quantity').addEventListener('input', updateShelfOptions);
 
-    // Quantity validation
-    if (quantity.value < 0 || quantity.value > 999999) {
-        document.getElementById('quantityError').textContent = 'Daudzumam jābūt no 0 līdz 999999!';
-        isValid = false;
-    }
-
-    return isValid;
-}
-
-document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', function() {
-        validateForm();
-    });
-});
-
-<?php
-    if (isset($_SESSION['success_message'])) {
-        echo 'alert("' . addslashes($_SESSION['success_message']) . '");';
-        unset($_SESSION['success_message']);
-    }
-?>
-function updateShelfOptions() {
-    const quantity = parseInt(document.getElementById('quantity').value, 10) || 0;
-    document.querySelectorAll('#shelf_id option').forEach(option => {
-        if (!option.value) return; // Skip "Izvēlieties plauktu"
-        const free = parseInt(option.getAttribute('data-free'), 10);
-        option.style.display = (quantity > 0 && free >= quantity) ? '' : 'none';
-    });
-}
-
-updateShelfOptions();
-
-document.getElementById('quantity').addEventListener('input', updateShelfOptions);
-
-window.addEventListener('DOMContentLoaded', updateShelfOptions);
+    window.addEventListener('DOMContentLoaded', updateShelfOptions);
 </script>
-
-
 </body>
 </html>
