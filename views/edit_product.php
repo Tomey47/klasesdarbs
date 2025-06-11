@@ -1,14 +1,49 @@
 <?php
 session_start();
-
 require_once '../config/mysql.php';
-?>
 
+// Check if user is authorized
+if (!isset($_SESSION['is_admin']) || !$_SESSION['is_admin']) {
+    header('Location: dashboard.php');
+    exit;
+}
+
+// Get product ID from URL
+$id = filter_var($_GET['id'] ?? 0, FILTER_SANITIZE_NUMBER_INT);
+
+if (!$id) {
+    $_SESSION['error_message'] = "Nederīgs produkta ID!";
+    header('Location: dashboard.php');
+    exit;
+}
+
+// Get product data
+try {
+    $stmt = $dbh->prepare('SELECT * FROM products WHERE id = ?');
+    $stmt->execute([$id]);
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$product) {
+        $_SESSION['error_message'] = "Produkts nav atrasts!";
+        header('Location: dashboard.php');
+        exit;
+    }
+} catch (PDOException $e) {
+    $_SESSION['error_message'] = "Kļūda ielādējot produktu: " . $e->getMessage();
+    header('Location: dashboard.php');
+    exit;
+}
+
+// Role variables for sidebar
+$is_admin = $_SESSION['is_admin'] ?? 0;
+$is_employee = $_SESSION['is_employee'] ?? 0;
+$is_shelf_manager = $_SESSION['is_shelf_manager'] ?? 0;
+?>
 <!DOCTYPE html>
 <html lang="lv">
 <head>
     <meta charset="UTF-8">
-    <title>Pievienot Produktu - STASH</title>
+    <title>Rediģēt produktu - STASH</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -22,13 +57,13 @@ require_once '../config/mysql.php';
             <ul>
                 <?php if ($is_admin): ?>
                     <li><a href="dashboard.php"><i class="fa-solid fa-home"></i> Sākums</a></li>
-                    <li><a href="add_product.php"><i class="fa-solid fa-plus"></i> Pievienot produktu</a></li>
-                    <li><a href="registration.php"><i class="fa-solid fa-plus"></i> Pievienot lietotāju</a></li>
-                    <li><a href="users.php"><i class="fa-solid fa-user"></i> Lietotāji</a></li>
+                    <li><a href="shelves.php"><i class="fa-solid fa-box"></i> Izvietot preces</a></li>
+                    <li><a href="shelf_manager_products_report.php"><i class="fa-solid fa-book"></i> Sagatavot atskaiti</a></li>
+                    <li><a href="add_product.php"><i class="fa-solid fa-user"></i> Datu ievade</a></li>
                     <li><a href="../controllers/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Iziet</a></li>
                 <?php elseif ($is_employee): ?>
                     <li><a href="dashboard.php"><i class="fa-solid fa-home"></i> Sākums</a></li>
-                    <li><a href="employee_orders.php"><i class="fa-solid fa-car"></i> Veikt pasūtījumu</a></li>
+                    <li><a href="employee_orders.php"><i class="fa-solid fa-box"></i> Pasūtījumi</a></li>
                     <li><a href="../controllers/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Iziet</a></li>
                 <?php elseif ($is_shelf_manager): ?>
                     <li><a href="dashboard.php"><i class="fa-solid fa-home"></i> Sākums</a></li>
@@ -41,7 +76,7 @@ require_once '../config/mysql.php';
         </nav>
     </aside>
     <div class="add-product-card">
-        <h1>Pievienot jaunu produktu</h1>
+        <h1>Rediģēt produktu</h1>
         
         <?php if (isset($_SESSION['error_message'])): ?>
             <div class="error-message">
@@ -50,12 +85,15 @@ require_once '../config/mysql.php';
             <?php unset($_SESSION['error_message']); ?>
         <?php endif; ?>
 
-        <form method="POST" class="product-form" action="../controllers/add_product.php" onsubmit="return validateForm()">
+        <form method="POST" class="product-form" action="../controllers/edit_product.php" onsubmit="return validateForm()">
+            <input type="hidden" name="id" value="<?= htmlspecialchars($product['id']) ?>">
+            
             <div class="form-group">
                 <label for="title">Produkta nosaukums:</label>
                 <input type="text" id="title" name="title" required
                        minlength="3" maxlength="100"
                        pattern="[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+"
+                       value="<?= htmlspecialchars($product['title']) ?>"
                        title="Produkta nosaukumam jābūt no 3 līdz 100 rakstzīmēm. Atļauti burti, cipari un simboli: -_.,">
                 <span class="error" id="titleError"></span>
             </div>
@@ -65,6 +103,7 @@ require_once '../config/mysql.php';
                 <input type="text" id="category" name="category" required
                        minlength="2" maxlength="50"
                        pattern="[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+"
+                       value="<?= htmlspecialchars($product['category']) ?>"
                        title="Kategorijai jābūt no 2 līdz 50 rakstzīmēm. Atļauti burti, cipari un simboli: -_.,">
                 <span class="error" id="categoryError"></span>
             </div>
@@ -73,7 +112,7 @@ require_once '../config/mysql.php';
                 <label for="price">Cena (EUR):</label>
                 <input type="number" id="price" name="price" required
                        min="0.01" max="999999.99" step="0.01"
-                       title="Cenai jābūt no 0.01 līdz 999999.99 EUR">
+                       value="<?= htmlspecialchars($product['price']) ?>">
                 <span class="error" id="priceError"></span>
             </div>
 
@@ -81,12 +120,13 @@ require_once '../config/mysql.php';
                 <label for="quantity">Daudzums:</label>
                 <input type="number" id="quantity" name="quantity" required
                        min="0" max="999999"
-                       title="Daudzumam jābūt no 0 līdz 999999">
+                       value="<?= htmlspecialchars($product['quantity']) ?>">
                 <span class="error" id="quantityError"></span>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-primary">Pievienot produktu</button>
+                <button type="submit" class="update-btn">Saglabāt izmaiņas</button>
+                <a href="dashboard.php" class="cancel-btn">Atcelt</a>
             </div>
         </form>
     </div>
@@ -101,17 +141,17 @@ function validateForm() {
     const quantity = document.getElementById('quantity');
 
     // Reset previous errors
-    document.querySelectorAll('.error').forEach(error => error.textContent = '');
+    document.querySelectorAll('.error').forEach(el => el.textContent = '');
 
     // Title validation
-    if (!title.value.match(/^[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+$/)) {
-        document.getElementById('titleError').textContent = 'Produkta nosaukums satur neatļautas rakstzīmes!';
+    if (title.value.length < 3 || title.value.length > 100) {
+        document.getElementById('titleError').textContent = 'Produkta nosaukumam jābūt no 3 līdz 100 rakstzīmēm!';
         isValid = false;
     }
 
     // Category validation
-    if (!category.value.match(/^[a-zA-Z0-9\s\-_.,āčēģīķļņšūžĀČĒĢĪĶĻŅŠŪŽ]+$/)) {
-        document.getElementById('categoryError').textContent = 'Kategorija satur neatļautas rakstzīmes!';
+    if (category.value.length < 2 || category.value.length > 50) {
+        document.getElementById('categoryError').textContent = 'Kategorijai jābūt no 2 līdz 50 rakstzīmēm!';
         isValid = false;
     }
 
@@ -129,41 +169,6 @@ function validateForm() {
 
     return isValid;
 }
-
-// Real-time validation
-document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', function() {
-        validateForm();
-    });
-});
-
-<?php
-    if (isset($_SESSION['success_message'])) {
-        echo 'alert("' . addslashes($_SESSION['success_message']) . '");';
-        unset($_SESSION['success_message']);
-    }
-?>
 </script>
-
-<style>
-.error {
-    color: #dc3545;
-    font-size: 0.875rem;
-    margin-top: 0.25rem;
-    display: block;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-input:invalid {
-    border-color: #dc3545;
-}
-
-input:valid {
-    border-color: #28a745;
-}
-</style>
 </body>
-</html>
+</html> 

@@ -41,7 +41,7 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php elseif ($is_shelf_manager): ?>
                     <li><a href="dashboard.php"><i class="fa-solid fa-home"></i> Sākums</a></li>
                     <li><a href="shelves.php"><i class="fa-solid fa-box"></i> Izvietot preces</a></li>
-                    <li><a href="#"><i class="fa-solid fa-book"></i> Sagatavot atskaiti</a></li>
+                    <li><a href="shelf_manager_products_report.php"><i class="fa-solid fa-book"></i> Sagatavot atskaiti</a></li>
                     <li><a href="add_product.php"><i class="fa-solid fa-user"></i> Datu ievade</a></li>
                     <li><a href="../controllers/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Iziet</a></li>
                 <?php endif; ?>
@@ -65,7 +65,17 @@ $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td><?= htmlspecialchars($product['category']) ?></td>
                     <td><?= htmlspecialchars($product['price']) ?></td>
                     <td><?= htmlspecialchars($product['quantity']) ?></td>
-                    <td><button>Dzēst</button> <button>Rediģēt</button></td>
+                    <td>
+                        <a href="edit_product.php?id=<?= htmlspecialchars($product['id']) ?>" class="edit-btn">
+                            <i class="fa-solid fa-pen-to-square"></i> Rediģēt
+                        </a>
+                        <form method="POST" action="../controllers/delete_product.php" class="delete-form">
+                            <input type="hidden" name="id" value="<?= htmlspecialchars($product['id']) ?>">
+                            <button type="submit" class="delete-btn" onclick="return confirm('Vai tiešām vēlaties dzēst šo produktu?');">
+                                <i class="fa-solid fa-trash"></i> Dzēst
+                            </button>
+                        </form>
+                    </td>
                 </tr>
                 <?php endforeach; ?>
             </table>

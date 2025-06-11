@@ -55,7 +55,7 @@ $is_shelf_manager = $_SESSION['is_shelf_manager'] ?? 0;
                 <?php elseif ($is_shelf_manager): ?>
                     <li><a href="dashboard.php"><i class="fa-solid fa-home"></i> Sākums</a></li>
                     <li><a href="shelves.php"><i class="fa-solid fa-box"></i> Izvietot preces</a></li>
-                    <li><a href="#"><i class="fa-solid fa-book"></i> Sagatavot atskaiti</a></li>
+                    <li><a href="shelf_manager_products_report.php"><i class="fa-solid fa-book"></i> Sagatavot atskaiti</a></li>
                     <li><a href="add_product.php"><i class="fa-solid fa-user"></i> Datu ievade</a></li>
                     <li><a href="../controllers/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Iziet</a></li>
                 <?php endif; ?>
